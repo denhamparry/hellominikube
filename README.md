@@ -119,6 +119,10 @@ $ kubectl expose deployment hello-minikube --type="NodePort"
 service/hello-minikube exposed
 ```
 
+To be able to access the deployment outside of the cluster, one option is to use a __NodePort__.
+
+> NOTE: A NodePort exposes the service on each Node's IP at a static port.  More information can be found [here](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport).
+
 ```bash
 $  kubectl get service
 NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
@@ -194,3 +198,6 @@ cache            config           http-cache       kind-config-kind kubectx     
   * Rolling.
   * Blue / Green.
   * Canary.
+* Look to define Minikube Architecture.
+  * Its a single node compromising of master and worker roles.
+  * Where should we add a definition of what a node is?
