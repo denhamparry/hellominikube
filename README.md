@@ -235,6 +235,8 @@ Hello Minikube! (v0.1)
 
 ### Lets update the application with zero downtime
 
+> TIP: Use `watch` to make sure that there is no downtime during the rolling update.  If watch is not available use browser or curl.
+
 ```bash
 $ watch curl $(minikube ip)
 Every 2.0s: curl 192.168.99.100
