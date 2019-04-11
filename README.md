@@ -152,7 +152,128 @@ No resources found.
 
 ### A better way to run the application
 
-> TODO: yaml files / scale / update image names
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-minikube
+  labels:
+    app: hello-minikube
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-minikube
+  template:
+    metadata:
+      labels:
+        app: hello-minikube
+    spec:
+      containers:
+      - name: hello-minikube
+        image: denhamparry/hellominikube:0.1
+        ports:
+        - containerPort: 5000
+```
+
+```bash
+$  kubectl apply -f kubernetes/deployment.yaml
+deployment.apps/hello-minikube created
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-minikube
+spec:
+  selector:
+    app: hello-minikube
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+```
+
+```bash
+$ kubectl apply -f kubernetes/service.yaml
+service/hello-minikube created
+```
+
+```bash
+$  minikube addons enable ingress
+✅  ingress was successfully enabled
+```
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-minikube
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: hello-minikube
+          servicePort: 80
+```
+
+```bash
+$ kubectl apply -f kubernetes/ingress.yaml
+ingress.extensions/hello-minikube created
+```
+
+```bash
+$ curl https://$(minikube ip)
+Hello Minikube! (v0.1)
+```
+
+### Lets update the application with zero downtime
+
+```bash
+$ watch curl $(minikube ip)
+Every 2.0s: curl 192.168.99.100
+Hello Minikube! (v0.1)
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-minikube
+  labels:
+    app: hello-minikube
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-minikube
+  template:
+    metadata:
+      labels:
+        app: hello-minikube
+    spec:
+      containers:
+      - name: hello-minikube
+        image: denhamparry/hellominikube:0.2
+        ports:
+        - containerPort: 5000
+```
+
+```bash
+$ kubectl apply -f kubernetes/deployment.v2.yaml
+deployment.apps/hello-minikube configured
+```
+
+```bash
+Every 2.0s: curl 192.168.99.100
+Hello Minikube! (v0.1)
+```
 
 ### Delete
 
